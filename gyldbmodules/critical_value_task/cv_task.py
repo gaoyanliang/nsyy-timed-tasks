@@ -37,7 +37,7 @@ def read_cv_from_system1():
 
     if systeml:
         for cv_source in systeml:
-            cv_ids = running_ids.get(cv_source)
+            cv_ids = running_ids.get(str(cv_source))
             idrs = f"resultalertid in ({','.join(cv_ids)}) or " if cv_ids else ''
             key = 'idrs_' + str(cv_source)
             query_sql = query_sql.replace(key, idrs)
@@ -45,7 +45,7 @@ def read_cv_from_system1():
     param = {
         "type": "orcl_db_read",
         "db_source": "ztorcl",
-        "strcol": ["ALERTDT"],
+        "strcol": ["ALERTDT", "RECIEVEDT", "HISCHECKDT", "HISCHECKDT1"],
         "randstr": "XPFDFZDF7193CIONS1PD7XCJ3AD4ORRC",
         "sql": query_sql
     }
