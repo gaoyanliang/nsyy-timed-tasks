@@ -73,7 +73,7 @@ def read_cv_from_system1():
         # 发送 POST 请求，将字符串数据传递给 data 参数
         requests.post(global_config.HANDLE_CV_URL, json={'cvd': cvd})
     except Exception as e:
-        print('调用危机值服务接口 ' + global_config.HANDLE_CV_URL + ' 失败, param = ' + str(param) + e.__str__())
+        print('调用危机值服务接口 ' + global_config.HANDLE_CV_URL + ' 失败, ' + e.__str__())
 
     # 更新 running ids
     grouped_dict = {}
