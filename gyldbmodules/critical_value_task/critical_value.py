@@ -4,7 +4,7 @@ import cx_Oracle
 def query_cv(cv_source):
     try:
         # 连接数据库
-        connection = cx_Oracle.connect("system", "d67v7rbZyV", "192.168.3.240:1526/orcl")
+        connection = cx_Oracle.connect("system", "d67v7rbZyV", "192.168.3.240:1521/orcl")
         # 创建游标
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM NS_EXT.PACS危急值上报表 ")
@@ -25,7 +25,7 @@ def query_cv(cv_source):
 def report_cv(json_data):
     try:
         # 连接数据库
-        connection = cx_Oracle.connect("system", "d67v7rbZyV", "192.168.3.240:1526/orcl")
+        connection = cx_Oracle.connect("system", "d67v7rbZyV", "192.168.3.240:1521/orcl")
         # 创建游标
         cursor = connection.cursor()
 

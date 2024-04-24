@@ -1,0 +1,30 @@
+字段	                     类型		       是否可以为空
+RESULTALERTID	         VARCHAR2(20)		N	上报ID
+ALERTDT	                 DATE	         	N	上报时间
+ALERTMAN	             VARCHAR2(20)		N	上报人
+REPORTID	             VARCHAR2(20)		N	报告ID
+RESULTID	             NUMBER(15)		    N	结果ID
+RPTUNITNAME            	 VARCHAR2(64)		Y	报告单元名称  冗余
+PAT_TYPECODE	         VARCHAR2(20)		Y	病人来源  1=门诊,2=急诊,3=住院,4=体检
+PAT_NO	                 VARCHAR2(20)		Y	病历号
+PAT_NAME	             VARCHAR2(40)		Y	姓名
+PAT_SEX	                 VARCHAR2(2)		Y	性别  1=男,2=女
+PAT_AGESTR	             VARCHAR2(20)		Y	年龄字串
+PAT_AGEYEAR	             NUMBER(10,4)		Y	年龄岁数
+REQ_DEPTNO	             VARCHAR2(64)		Y	科室
+REQ_WARDNO	             VARCHAR2(64)		Y	病人病区
+REQ_BEDNO	             VARCHAR2(20)		Y	床号
+REQ_DOCNO	             VARCHAR2(64)		Y	开单医生
+RPT_ITEMID	             VARCHAR2(20)		N	报告项目ID  报告项目ID
+RPT_ITEMNAME	         VARCHAR2(128)		Y	报告项目名称
+RESULT_STR	             VARCHAR2(1024)		N	文本结果  文字结果，如果为>1000则数值结果为1000.001，如果为>=1000则数值结果为1000
+RESULT_FLAG	             VARCHAR2(2)		Y	结果状态标志  H偏高、HH偏高报警、L偏低、LL偏低报警、P阳性、E错误
+RESULT_UNIT	             VARCHAR2(40)		Y	单位
+RESULT_REF               VARCHAR2(512)		Y	参考值
+INSTRNA	                 VARCHAR2(32)		Y	仪器简称  为空表示手工录入
+REDO_FLAG	             CHAR(1)	     	Y	复查标志  0＝无需复查，1＝需要复查，2＝已经复查
+REDO_RESULT	             VARCHAR2(255)		Y	复查前结果  复查前结果，由解码程序或者手工输入复查结果时替换
+ALERTRULES	             VARCHAR2(255)		Y	违反的规则
+VALIDFLAG	             CHAR(1)		    Y	有效标志  1=有效，0=无效(上报写入后为1,如果LIS中发现错误需要召回,改为0)
+cv_source	             INTEGER		    N	来源系统：LIS：2， PACS：3，心电：4
+
