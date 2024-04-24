@@ -14,11 +14,12 @@ def add_task():
 
 
 def schedule_task():
-    # run_time = datetime.now()
-    run_time = datetime.now() + timedelta(minutes=1)
-    timed_task_scheduler.add_job(add_task, 'date', run_date=run_time)
-    # Start the scheduler
-    timed_task_scheduler.start()
+    # # run_time = datetime.now()
+    # run_time = datetime.now() + timedelta(minutes=1)
+    # timed_task_scheduler.add_job(add_task, 'date', run_date=run_time)
+    # # Start the scheduler
+    # timed_task_scheduler.start()
+    print()
 
 
 # try:
