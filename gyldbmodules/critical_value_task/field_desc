@@ -10,7 +10,6 @@ PAT_NO	                 VARCHAR2(20)		Y	病历号
 PAT_NAME	             VARCHAR2(40)		Y	姓名
 PAT_SEX	                 VARCHAR2(2)		Y	性别  1=男,2=女
 PAT_AGESTR	             VARCHAR2(20)		Y	年龄字串
-PAT_AGEYEAR	             NUMBER(10,4)		Y	年龄岁数
 REQ_DEPTNO	             VARCHAR2(64)		Y	科室
 REQ_WARDNO	             VARCHAR2(64)		Y	病人病区
 REQ_BEDNO	             VARCHAR2(20)		Y	床号
