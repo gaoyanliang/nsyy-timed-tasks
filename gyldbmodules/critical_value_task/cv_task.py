@@ -4,7 +4,6 @@ import requests
 import json
 
 from gyldbmodules import global_config
-from gyldbmodules.utils.common_utils import run_in_local
 
 is_first_run = True
 query_sql = ''
@@ -29,7 +28,7 @@ def read_cv_from_system1():
         print("query_sql = " + query_sql)
 
     # 这里的 start_t 不能轻易修改，要保持和 query_sql 中的待替换字段一致
-    if run_in_local():
+    if global_config.run_in_local:
         start_t = str(datetime.now() - timedelta(seconds=6 * 60 * 60))[:19]  # 测试环境 加载前一天未处理的危机值
     else:
         start_t = str(datetime.now() - timedelta(seconds=600))[:19]  # 正式环境 加载前5分钟未处理的危机值
@@ -51,7 +50,7 @@ def read_cv_from_system1():
     }
 
     data = []
-    if run_in_local():
+    if global_config.run_in_local:
         try:
             # 发送 POST 请求，将字符串数据传递给 data 参数
             response = requests.post("http://192.168.124.53:6080/int_api", json=param)
