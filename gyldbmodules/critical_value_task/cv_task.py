@@ -47,6 +47,7 @@ def read_cv_from_system1():
                 if cv_ids:
                     merged_list = merged_list + cv_ids
 
+        merged_list = [f"'{item}'" for item in merged_list]
         idrs = f"resultalertid in ({','.join(merged_list)}) or " if merged_list else ''
         query_sql = query_sql.replace('idrs_3', idrs)
 
