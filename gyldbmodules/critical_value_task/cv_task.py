@@ -35,11 +35,20 @@ def read_cv_from_system1():
     query_sql = query_sql.replace('{start_t}', start_t)
 
     if systeml:
+        merged_list = []
         for cv_source in systeml:
-            cv_ids = running_ids.get(str(cv_source))
-            idrs = f"resultalertid in ({','.join(cv_ids)}) or " if cv_ids else ''
-            key = 'idrs_' + str(cv_source)
-            query_sql = query_sql.replace(key, idrs)
+            if cv_source == 2:
+                cv_ids = running_ids.get(str(cv_source))
+                idrs = f"resultalertid in ({','.join(cv_ids)}) or " if cv_ids else ''
+                key = 'idrs_' + str(cv_source)
+                query_sql = query_sql.replace(key, idrs)
+            else:
+                cv_ids = running_ids.get(str(cv_source))
+                if cv_ids:
+                    merged_list = merged_list + cv_ids
+
+        idrs = f"resultalertid in ({','.join(merged_list)}) or " if merged_list else ''
+        query_sql = query_sql.replace('idrs_3', idrs)
 
     param = {
         "type": "orcl_db_read",
@@ -68,6 +77,11 @@ def read_cv_from_system1():
         return
 
     try:
+        # 将 cv_source 转为大写
+        data = [
+            {("CV_SOURCE" if k == "cv_source" else k): v for k, v in item.items()}
+            for item in data
+        ]
         cvd = {(str(item['RESULTALERTID']) + '_' + str(item['CV_SOURCE'])): item for item in data}
         # 发送 POST 请求，将字符串数据传递给 data 参数
         requests.post(global_config.HANDLE_CV_URL, json={'cvd': cvd})

@@ -1,5 +1,6 @@
 import cx_Oracle
 import os
+from datetime import datetime
 
 # os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.AL32UTF8'
 
@@ -79,6 +80,22 @@ def report_cv(json_data):
             cursor.close()
         if 'connection' in locals():
             connection.close()
+
+
+"""
+手工上报危机值
+"""
+
+
+def manual_report_cv(json_data):
+    json_data['cv_source'] = 0
+    # 手工上报的危机值用 时间戳代替
+    json_data['RESULTALERTID'] = int(datetime.now().timestamp() * 1000)
+    json_data['ALERTDT'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    json_data['VALIDFLAG'] = '1'
+
+    report_cv(json_data)
+
 
 
 """
