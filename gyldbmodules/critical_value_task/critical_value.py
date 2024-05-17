@@ -72,7 +72,7 @@ def report_cv(json_data):
         connection.commit()
     except cx_Oracle.Error as error:
         # 如果出现数据库错误，则执行此处的代码块
-        print("数据库错误:", error)
+        raise Exception("数据库错误:", error)
     finally:
         # 无论是否发生异常，都会执行此处的代码块
         # 关闭游标和连接
@@ -91,7 +91,7 @@ def manual_report_cv(json_data):
     json_data['cv_source'] = 0
     # 手工上报的危机值用 时间戳代替
     json_data['RESULTALERTID'] = int(datetime.now().timestamp() * 1000)
-    json_data['ALERTDT'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    json_data['ALERTDT'] = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     json_data['VALIDFLAG'] = '1'
 
     report_cv(json_data)

@@ -56,7 +56,7 @@ def report_cv():
 def manual_report_cv():
     try:
         json_data = json.loads(request.get_data().decode('utf-8'))
-        critical_value.report_cv(json_data)
+        critical_value.manual_report_cv(json_data)
     except Exception:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         msg = f"[{timestamp}] Exception occurred: {traceback.print_exc()}"
