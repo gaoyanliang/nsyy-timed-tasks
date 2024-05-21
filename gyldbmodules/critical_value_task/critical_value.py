@@ -72,6 +72,7 @@ def report_cv(json_data):
         connection.commit()
     except cx_Oracle.Error as error:
         # 如果出现数据库错误，则执行此处的代码块
+        print("有问题的sql: ", sql)
         raise Exception("数据库错误:", error)
     finally:
         # 无论是否发生异常，都会执行此处的代码块
@@ -119,6 +120,7 @@ def cancel_cv(cv_id, cv_source):
         connection.commit()
     except cx_Oracle.Error as error:
         # 如果出现数据库错误，则执行此处的代码块
+        print("有问题的sql: ", sql)
         print("数据库错误:", error)
     finally:
         # 无论是否发生异常，都会执行此处的代码块
