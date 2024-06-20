@@ -2,14 +2,18 @@ from datetime import datetime, timedelta
 
 import requests
 import json
+from collections import deque
 
 from gyldbmodules import global_config
+from gyldbmodules.critical_value_task import critical_value
 
 is_first_run = True
 query_sql = ''
 running_ids = {}
 systeml = []
 
+# 最近
+last_100_xuetang_records = deque(maxlen=100)
 
 """
 从系统中抓取危机值
@@ -115,3 +119,102 @@ def get_running_cvs_from_cv_service():
     except Exception as e:
         print('从危机值服务中抓取处理中的危机值失败： ' + e.__str__())
         return []
+
+
+"""
+读取最近 5 分钟 床旁血糖危机值
+"""
+
+
+def read_xuetang_cv_and_report():
+    data = []
+    param = {
+        "type": "orcl_db_read",
+        "db_source": "nshis",
+        "randstr": "XPFDFZDF7193CIONS1PD7XCJ3AD4ORRC",
+        # "sql": "select a.*, TRUNC(b.出院科室ID) as 所属科室ID "
+        #        "from V_XT_BG_TESTRESULT@xuetang a left join 病案主页 b on a.住院号 = b.住院号 and a.住院次数 = b.主页id "
+        #        "where a.危机值 != '正常' and a.记录时间 >= SYSDATE - INTERVAL '55' MINUTE Order By 记录时间 DESC",
+        "sql": "select a.*, b.姓名, b.年龄, b.性别, TRUNC(b.出院科室ID) as 所属科室ID "
+               "from V_XT_BG_TESTRESULT@xuetang a left join 病案主页 b on a.住院号 = b.住院号 and a.住院次数 = b.主页id  "
+               "where a.记录时间 >= SYSDATE - INTERVAL '5' MINUTE Order By 记录时间 DESC"
+    }
+    if global_config.run_in_local:
+        try:
+            # 发送 POST 请求，将字符串数据传递给 data 参数
+            response = requests.post("http://192.168.3.12:6080/int_api", json=param)
+            data = response.text
+            data = json.loads(data)
+            data = data.get('data')
+        except Exception as e:
+            print('从系统中抓取危机值失败： ' + e.__str__())
+    else:
+        # 正式环境
+        from tools import orcl_db_read
+        data = orcl_db_read(param)
+
+    if not data:
+        return
+
+    new_xuetang = []
+    for record in data:
+        if record.get('ID') in last_100_xuetang_records:
+            continue
+        new_xuetang.append(record)
+
+    if not new_xuetang:
+        # 不存在新记录 直接返回
+        return
+
+    for record in new_xuetang:
+        try:
+            if not record.get('所属科室ID'):
+                print("床旁血糖危机值数据异常，不存在所属科室信息：", record)
+
+            flag = 'H'
+            if '正常' in record.get('危急值'):
+                continue
+            elif '低' in record.get('危急值'):
+                continue
+            elif '高' in record.get('危急值'):
+                continue
+            elif '极高' in record.get('危急值'):
+                flag = 'HH'
+            elif '极低' in record.get('危急值'):
+                flag = 'LL'
+
+            cur_time = datetime.now()
+            timer = cur_time.strftime("%Y-%m-%d %H:%M:%S")
+            sex = '1'
+            if record.get('性别') and '女' in record.get('性别'):
+                sex = '2'
+            id = record.get('ID')
+            json_data = {
+                "cv_source": 5,
+                "RESULTALERTID": id,
+                "ALERTMAN": record.get('护士工号'),
+                "ALERTDT": timer,
+                "REPORTID": id,
+                "RESULTID": id,
+                "PAT_TYPECODE": '3',
+                "PAT_NO": record.get('住院号'),
+                "PAT_NAME": record.get('姓名'),
+                "PAT_SEX": sex,
+                "PAT_AGESTR": record.get('年龄'),
+                "REQ_BEDNO": record.get('床号'),
+                "REQ_DOCNO": record.get('护士工号'),
+                "REQ_DEPTNO": record.get('所属科室ID'),
+                "REQ_WARDNO": record.get('病区ID'),
+                "RPT_ITEMID": id,
+                "RPT_ITEMNAME": record.get('项目') + '-' + record.get('测量时段'),
+                "RESULT_STR": record.get('测量值'),
+                "RESULT_FLAG": flag,
+                "RESULT_UNIT": record.get('单位'),
+                "VALIDFLAG": '1'
+            }
+            critical_value.report_cv(json_data)
+            last_100_xuetang_records.append(id)
+        except Exception as e:
+            print("床旁血糖危机值数据异常，上报失败：record = ", record, " json_data = ", json_data, "exception = ", e)
+            continue
+
