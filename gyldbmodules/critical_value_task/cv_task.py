@@ -132,10 +132,7 @@ def read_xuetang_cv_and_report():
         "type": "orcl_db_read",
         "db_source": "nshis",
         "randstr": "XPFDFZDF7193CIONS1PD7XCJ3AD4ORRC",
-        # "sql": "select a.*, TRUNC(b.出院科室ID) as 所属科室ID "
-        #        "from V_XT_BG_TESTRESULT@xuetang a left join 病案主页 b on a.住院号 = b.住院号 and a.住院次数 = b.主页id "
-        #        "where a.危机值 != '正常' and a.记录时间 >= SYSDATE - INTERVAL '55' MINUTE Order By 记录时间 DESC",
-        "sql": "select a.*, b.姓名, b.年龄, b.性别, TRUNC(b.出院科室ID) as 所属科室ID "
+        "sql": "select a.*, b.姓名, b.年龄, b.性别, b.出院科室ID as 所属科室ID "
                "from V_XT_BG_TESTRESULT@xuetang a left join 病案主页 b on a.住院号 = b.住院号 and a.住院次数 = b.主页id  "
                "where a.记录时间 >= SYSDATE - INTERVAL '5' MINUTE Order By 记录时间 DESC"
     }
@@ -171,17 +168,12 @@ def read_xuetang_cv_and_report():
             if not record.get('所属科室ID'):
                 print("床旁血糖危机值数据异常，不存在所属科室信息：", record)
 
-            flag = 'H'
-            if '正常' in record.get('危急值'):
-                continue
-            elif '低' in record.get('危急值'):
-                continue
-            elif '高' in record.get('危急值'):
-                continue
+            if '极低' in record.get('危急值'):
+                flag = 'LL'
             elif '极高' in record.get('危急值'):
                 flag = 'HH'
-            elif '极低' in record.get('危急值'):
-                flag = 'LL'
+            else:
+                continue
 
             cur_time = datetime.now()
             timer = cur_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -189,6 +181,9 @@ def read_xuetang_cv_and_report():
             if record.get('性别') and '女' in record.get('性别'):
                 sex = '2'
             id = record.get('ID')
+            dept_id = record.get('所属科室ID')
+            if type(dept_id) == float:
+                dept_id = str(int(dept_id))
             json_data = {
                 "cv_source": 5,
                 "RESULTALERTID": id,
@@ -203,7 +198,7 @@ def read_xuetang_cv_and_report():
                 "PAT_AGESTR": record.get('年龄'),
                 "REQ_BEDNO": record.get('床号'),
                 "REQ_DOCNO": record.get('护士工号'),
-                "REQ_DEPTNO": record.get('所属科室ID'),
+                "REQ_DEPTNO": dept_id,
                 "REQ_WARDNO": record.get('病区ID'),
                 "RPT_ITEMID": id,
                 "RPT_ITEMNAME": record.get('项目') + '-' + record.get('测量时段'),
