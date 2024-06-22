@@ -167,6 +167,8 @@ def read_xuetang_cv_and_report():
         try:
             if not record.get('所属科室ID'):
                 print("床旁血糖危机值数据异常，不存在所属科室信息：", record)
+                last_100_xuetang_records.append(record.get('ID'))
+                continue
 
             if '极低' in record.get('危急值'):
                 flag = 'LL'
