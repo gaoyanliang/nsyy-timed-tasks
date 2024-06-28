@@ -212,6 +212,7 @@ def read_xuetang_cv_and_report():
             critical_value.report_cv(json_data)
             last_100_xuetang_records.append(id)
         except Exception as e:
-            print("床旁血糖危机值数据异常，上报失败：record = ", record, " json_data = ", json_data, "exception = ", e)
+            print("床旁血糖危机值数据异常，上报失败：record = ", record, "exception = ", e)
+            last_100_xuetang_records.append(record.get('ID'))
             continue
 
