@@ -165,9 +165,9 @@ def read_xuetang_cv_and_report():
 
     for record in new_xuetang:
         try:
-            if '极低' in record.get('危急值'):
+            if '极低' in str(record.get('危急值')):
                 flag = 'LL'
-            elif '极高' in record.get('危急值'):
+            elif '极高' in str(record.get('危急值')):
                 flag = 'HH'
             else:
                 continue
