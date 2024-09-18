@@ -35,7 +35,7 @@ def read_cv_from_system1():
     if global_config.run_in_local:
         start_t = str(datetime.now() - timedelta(seconds=6 * 60 * 60))[:19]  # 测试环境 加载前一天未处理的危机值
     else:
-        start_t = str(datetime.now() - timedelta(seconds=600))[:19]  # 正式环境 加载前5分钟未处理的危机值
+        start_t = str(datetime.now() - timedelta(seconds=10 * 60))[:19]  # 正式环境 加载前5分钟未处理的危机值
     query_sql = query_sql.replace('{start_t}', start_t)
 
     if systeml:
@@ -96,6 +96,9 @@ def read_cv_from_system1():
     # 更新 running ids
     grouped_dict = {}
     for item in data:
+        # 过滤作废危急值
+        if int(item["VALIDFLAG"]) == 0 or item["HISCHECKMAN1"]:
+            continue
         cv_source = item['CV_SOURCE']
         if cv_source not in grouped_dict:
             grouped_dict[cv_source] = []
