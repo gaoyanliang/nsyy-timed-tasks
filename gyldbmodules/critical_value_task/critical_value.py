@@ -59,6 +59,7 @@ def report_cv(json_data):
         # 创建游标
         cursor = connection.cursor()
 
+        json_data['DESCRIPTIONS'] = str(datetime.now().strftime("%Y%m%d%H%M%S"))
         fields = ",".join(json_data.keys())
         fields = fields.replace('cv_source', '\"cv_source\"')
         #placeholders = ":" + ",:".join(json_data.keys())
@@ -96,7 +97,6 @@ def manual_report_cv(json_data):
     json_data['VALIDFLAG'] = '1'
 
     report_cv(json_data)
-
 
 
 """
