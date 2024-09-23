@@ -28,6 +28,7 @@ def read_cv_from_system1():
     if is_first_run:
         running_ids, query_sql, systeml = get_running_cvs_from_cv_service()
         is_first_run = False
+        running_ids = {int(key): value for key, value in running_ids.items()}
         print('第一次执行，抓取到运行中的危机值: ' + str(running_ids))
         print("query_sql = " + query_sql)
 
@@ -36,31 +37,31 @@ def read_cv_from_system1():
         start_t = str(datetime.now() - timedelta(seconds=6 * 60 * 60))[:19]  # 测试环境 加载前一天未处理的危机值
     else:
         start_t = str(datetime.now() - timedelta(seconds=10 * 60))[:19]  # 正式环境 加载前5分钟未处理的危机值
-    query_sql = query_sql.replace('{start_t}', start_t)
+    run_query_sql = query_sql.replace('{start_t}', start_t)
 
     if systeml:
         merged_list = []
         for cv_source in systeml:
             if cv_source == 2:
-                cv_ids = running_ids.get(str(cv_source))
+                cv_ids = running_ids.get(int(cv_source))
                 idrs = f"resultalertid in ({','.join(cv_ids)}) or " if cv_ids else ''
                 key = 'idrs_' + str(cv_source)
-                query_sql = query_sql.replace(key, idrs)
+                run_query_sql = run_query_sql.replace(key, idrs)
             else:
-                cv_ids = running_ids.get(str(cv_source))
+                cv_ids = running_ids.get(int(cv_source))
                 if cv_ids:
                     merged_list = merged_list + cv_ids
 
         merged_list = [f"'{item}'" for item in merged_list]
         idrs = f"resultalertid in ({','.join(merged_list)}) or " if merged_list else ''
-        query_sql = query_sql.replace('idrs_3', idrs)
+        run_query_sql = run_query_sql.replace('idrs_3', idrs)
 
     param = {
         "type": "orcl_db_read",
         "db_source": "ztorcl",
         "strcol": ["ALERTDT", "RECIEVEDT", "HISCHECKDT", "HISCHECKDT1"],
         "randstr": "XPFDFZDF7193CIONS1PD7XCJ3AD4ORRC",
-        "sql": query_sql
+        "sql": run_query_sql
     }
 
     data = []
@@ -99,7 +100,7 @@ def read_cv_from_system1():
         # 过滤作废危急值
         if int(item["VALIDFLAG"]) == 0 or item["HISCHECKMAN1"]:
             continue
-        cv_source = item['CV_SOURCE']
+        cv_source = int(item['CV_SOURCE'])
         if cv_source not in grouped_dict:
             grouped_dict[cv_source] = []
         grouped_dict[cv_source].append(item['RESULTALERTID'])
